@@ -3,6 +3,7 @@ using Microsoft.AspNetCore.Mvc;
 using TrackPro.Application.Features.Stations.Queries.GetStationList;
 using TrackPro.Application.Features.Stations.Commands.CreateStation;
 using TrackPro.Application.Features.Stations.Queries.GetStationById;
+using TrackPro.Application.Features.Stations.Commands.UpdateStation;
 
 namespace TrackPro.API.Controllers
 {
@@ -50,6 +51,18 @@ namespace TrackPro.API.Controllers
             }
 
             return Ok(station);
+        }
+
+        [HttpPut("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> Put(int id, [FromBody] UpdateStationCommand command)
+        {
+            command.Id = id; 
+
+            await _mediator.Send(command);
+
+            return NoContent();
         }
     }
 }
