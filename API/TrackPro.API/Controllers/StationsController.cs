@@ -1,5 +1,6 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
+using TrackPro.Application.Features.Stations.Commands.CreateStation;
 using TrackPro.Application.Features.Stations.Queries.GetStationList;
 
 namespace TrackPro.API.Controllers
@@ -24,6 +25,14 @@ namespace TrackPro.API.Controllers
             var stations = await _mediator.Send(query);
 
             return Ok(stations);
+        }
+
+        [HttpPost]
+        [ProducesResponseType(StatusCodes.Status201Created)]
+        public async Task<ActionResult<int>> Post([FromBody] CreateStationCommand command)
+        {
+            var newStationId = await _mediator.Send(command);
+            return CreatedAtAction(nameof(Get), new { id = newStationId }, newStationId);
         }
     }
 }
