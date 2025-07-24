@@ -1,7 +1,8 @@
 using MediatR;
 using Microsoft.AspNetCore.Mvc;
-using TrackPro.Application.Features.Stations.Commands.CreateStation;
 using TrackPro.Application.Features.Stations.Queries.GetStationList;
+using TrackPro.Application.Features.Stations.Commands.CreateStation;
+using TrackPro.Application.Features.Stations.Queries.GetStationById;
 
 namespace TrackPro.API.Controllers
 {
@@ -33,6 +34,22 @@ namespace TrackPro.API.Controllers
         {
             var newStationId = await _mediator.Send(command);
             return CreatedAtAction(nameof(Get), new { id = newStationId }, newStationId);
+        }
+
+        [HttpGet("{id}")]
+        [ProducesResponseType(typeof(StationListDto), StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult<StationListDto>> Get(int id)
+        {
+            var query = new GetStationByIdQuery() { Id = id };
+            var station = await _mediator.Send(query);
+
+            if (station == null)
+            {
+                return NotFound();
+            }
+
+            return Ok(station);
         }
     }
 }
