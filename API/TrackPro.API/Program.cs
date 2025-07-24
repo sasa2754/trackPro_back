@@ -1,41 +1,50 @@
+using Microsoft.EntityFrameworkCore;
+using TrackPro.Application.Contracts.Persistence;
+using TrackPro.Domain.Entities;
+using TrackPro.Infrastructure.Persistence.DbContexts;
+using TrackPro.Infrastructure.Persistence.Repositories;
+
+
 var builder = WebApplication.CreateBuilder(args);
 
-// Add services to the container.
-// Learn more about configuring OpenAPI at https://aka.ms/aspnet/openapi
-builder.Services.AddOpenApi();
+builder.Services.AddDbContext<TrackProDbContext>(options =>
+    options.UseSqlite(builder.Configuration.GetConnectionString("TrackProConnectionString"))
+);
+
+builder.Services.AddScoped<IStationRepository, StationRepository>();
+builder.Services.AddScoped<IPartRepository, PartRepository>();
+builder.Services.AddScoped<IMovementRepository, MovementRepository>();
+
+builder.Services.AddControllers();
+builder.Services.AddEndpointsApiExplorer();
+builder.Services.AddSwaggerGen();
 
 var app = builder.Build();
 
-// Configure the HTTP request pipeline.
 if (app.Environment.IsDevelopment())
 {
-    app.MapOpenApi();
+    app.UseSwagger();
+    app.UseSwaggerUI();
 }
+
+
+using (var scope = app.Services.CreateScope())
+{
+    var dbContext = scope.ServiceProvider.GetRequiredService<TrackProDbContext>();
+    if (!await dbContext.Stations.AnyAsync())
+    {
+        await dbContext.Stations.AddRangeAsync(new List<Station>
+        {
+            new Station { Name = "Recebimento", Order = 1 },
+            new Station { Name = "Montagem", Order = 2 },
+            new Station { Name = "Inspeção Final", Order = 3 }
+        });
+        await dbContext.SaveChangesAsync();
+    }
+}
+
 
 app.UseHttpsRedirection();
-
-var summaries = new[]
-{
-    "Freezing", "Bracing", "Chilly", "Cool", "Mild", "Warm", "Balmy", "Hot", "Sweltering", "Scorching"
-};
-
-app.MapGet("/weatherforecast", () =>
-{
-    var forecast =  Enumerable.Range(1, 5).Select(index =>
-        new WeatherForecast
-        (
-            DateOnly.FromDateTime(DateTime.Now.AddDays(index)),
-            Random.Shared.Next(-20, 55),
-            summaries[Random.Shared.Next(summaries.Length)]
-        ))
-        .ToArray();
-    return forecast;
-})
-.WithName("GetWeatherForecast");
-
+app.UseAuthorization();
+app.MapControllers();
 app.Run();
-
-record WeatherForecast(DateOnly Date, int TemperatureC, string? Summary)
-{
-    public int TemperatureF => 32 + (int)(TemperatureC / 0.5556);
-}
