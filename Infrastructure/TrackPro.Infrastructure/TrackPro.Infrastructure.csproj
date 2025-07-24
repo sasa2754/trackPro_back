@@ -1,6 +1,7 @@
 ﻿<Project Sdk="Microsoft.NET.Sdk">
 
   <ItemGroup>
+    <ProjectReference Include="..\..\Core\TrackPro.Domain\TrackPro.Domain.csproj" />
     <ProjectReference Include="..\..\Core\TrackPro.Application\TrackPro.Application.csproj" />
   </ItemGroup>
 

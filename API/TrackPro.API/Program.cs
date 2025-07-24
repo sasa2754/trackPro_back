@@ -4,47 +4,65 @@ using TrackPro.Domain.Entities;
 using TrackPro.Infrastructure.Persistence.DbContexts;
 using TrackPro.Infrastructure.Persistence.Repositories;
 
-
 var builder = WebApplication.CreateBuilder(args);
 
-builder.Services.AddDbContext<TrackProDbContext>(options =>
-    options.UseSqlite(builder.Configuration.GetConnectionString("TrackProConnectionString"))
-);
-
-builder.Services.AddScoped<IStationRepository, StationRepository>();
-builder.Services.AddScoped<IPartRepository, PartRepository>();
-builder.Services.AddScoped<IMovementRepository, MovementRepository>();
-
-builder.Services.AddControllers();
-builder.Services.AddEndpointsApiExplorer();
-builder.Services.AddSwaggerGen();
+ConfigureServices(builder.Services);
 
 var app = builder.Build();
 
-if (app.Environment.IsDevelopment())
+ConfigurePipeline(app);
+
+app.Run();
+
+
+
+void ConfigureServices(IServiceCollection services)
 {
-    app.UseSwagger();
-    app.UseSwaggerUI();
+    var connectionString = builder.Configuration.GetConnectionString("TrackProConnectionString");
+    
+    services.AddDbContext<TrackProDbContext>(options =>
+        options.UseSqlite(connectionString)
+    );
+
+    services.AddScoped<IStationRepository, StationRepository>();
+    services.AddScoped<IPartRepository, PartRepository>();
+    services.AddScoped<IMovementRepository, MovementRepository>();
+    
+    services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(IStationRepository).Assembly));
+    
+    services.AddControllers();
+    services.AddEndpointsApiExplorer();
+    services.AddSwaggerGen();
 }
 
-
-using (var scope = app.Services.CreateScope())
+void ConfigurePipeline(WebApplication webApp)
 {
-    var dbContext = scope.ServiceProvider.GetRequiredService<TrackProDbContext>();
-    if (!await dbContext.Stations.AnyAsync())
+    SeedDatabase(webApp);
+
+    if (webApp.Environment.IsDevelopment())
     {
-        await dbContext.Stations.AddRangeAsync(new List<Station>
-        {
+        webApp.UseSwagger();
+        webApp.UseSwaggerUI();
+    }
+    
+    webApp.UseHttpsRedirection();
+    webApp.UseAuthorization();
+    webApp.MapControllers();
+}
+
+void SeedDatabase(WebApplication webApp)
+{
+    using var scope = webApp.Services.CreateScope();
+    var dbContext = scope.ServiceProvider.GetRequiredService<TrackProDbContext>();
+    
+    
+    if (!dbContext.Stations.AnyAsync().Result)
+    {
+        dbContext.Stations.AddRange(
             new Station { Name = "Recebimento", Order = 1 },
             new Station { Name = "Montagem", Order = 2 },
             new Station { Name = "Inspeção Final", Order = 3 }
-        });
-        await dbContext.SaveChangesAsync();
+        );
+        dbContext.SaveChanges();
     }
 }
-
-
-app.UseHttpsRedirection();
-app.UseAuthorization();
-app.MapControllers();
-app.Run();
