@@ -4,6 +4,7 @@ using TrackPro.Application.Features.Stations.Queries.GetStationList;
 using TrackPro.Application.Features.Stations.Commands.CreateStation;
 using TrackPro.Application.Features.Stations.Queries.GetStationById;
 using TrackPro.Application.Features.Stations.Commands.UpdateStation;
+using TrackPro.Application.Features.Stations.Commands.DeleteStation;
 
 namespace TrackPro.API.Controllers
 {
@@ -58,7 +59,19 @@ namespace TrackPro.API.Controllers
         [ProducesResponseType(StatusCodes.Status404NotFound)]
         public async Task<ActionResult> Put(int id, [FromBody] UpdateStationCommand command)
         {
-            command.Id = id; 
+            command.Id = id;
+
+            await _mediator.Send(command);
+
+            return NoContent();
+        }
+        
+        [HttpDelete("{id}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> Delete(int id)
+        {
+            var command = new DeleteStationCommand() { Id = id };
 
             await _mediator.Send(command);
 
