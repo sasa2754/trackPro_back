@@ -9,7 +9,6 @@ namespace TrackPro.Domain.Entities
         public string Status { get; private set; }
         public int CurrentStationId { get; private set; }
 
-        // Construtor usado para criar uma nova peça. Garante que toda peça já nasça no estado inicial correto
         public Part(string code, string description)
         {
             if (string.IsNullOrWhiteSpace(code))
@@ -25,14 +24,12 @@ namespace TrackPro.Domain.Entities
             Status = "Em processo - Recebimento";
         }
 
-        // Método que contém a lógica para movimentar a peça
         public void MoveToNextStation(Station nextStation)
         {
             CurrentStationId = nextStation.Id;
             Status = $"Em processo - {nextStation.Name}";
         }
 
-        // Método para finalizar o processo da peça
         public void FinishProcess()
         {
             Status = "Finalizada";
