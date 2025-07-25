@@ -32,6 +32,7 @@ namespace TrackPro.API.Controllers
 
         [HttpPost]
         [ProducesResponseType(StatusCodes.Status201Created)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult<int>> Post([FromBody] CreateStationCommand command)
         {
             var newStationId = await _mediator.Send(command);
@@ -57,6 +58,7 @@ namespace TrackPro.API.Controllers
         [HttpPut("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Put(int id, [FromBody] UpdateStationCommand command)
         {
             command.Id = id;
