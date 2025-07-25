@@ -3,6 +3,9 @@ using TrackPro.Application.Contracts.Persistence;
 using TrackPro.Domain.Entities;
 using TrackPro.Infrastructure.Persistence.DbContexts;
 using TrackPro.Infrastructure.Persistence.Repositories;
+using FluentValidation;
+using MediatR;
+using TrackPro.Application.Behaviours;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -19,7 +22,7 @@ app.Run();
 void ConfigureServices(IServiceCollection services)
 {
     var connectionString = builder.Configuration.GetConnectionString("TrackProConnectionString");
-    
+
     services.AddDbContext<TrackProDbContext>(options =>
         options.UseSqlite(connectionString)
     );
@@ -27,9 +30,11 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<IStationRepository, StationRepository>();
     services.AddScoped<IPartRepository, PartRepository>();
     services.AddScoped<IMovementRepository, MovementRepository>();
-    
+
     services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(IStationRepository).Assembly));
-    
+    services.AddValidatorsFromAssembly(typeof(IStationRepository).Assembly); 
+    services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
+
     services.AddControllers();
     services.AddEndpointsApiExplorer();
     services.AddSwaggerGen();
