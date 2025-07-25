@@ -4,13 +4,10 @@ using TrackPro.Application.Features.Parts.Commands.CreatePart;
 using TrackPro.Application.Features.Parts.Queries.GetPartList;
 using TrackPro.Application.Features.Parts.Queries.GetPartByCode;
 using TrackPro.Application.Features.Parts.Commands.MovePart;
+using TrackPro.Application.Features.Parts.Commands.UpdatePart;
 
 namespace TrackPro.API.Controllers
 {
-
-
-
-
     [ApiController]
     [Route("api/[controller]")]
     public class PartsController : ControllerBase
@@ -25,6 +22,11 @@ namespace TrackPro.API.Controllers
         public class MovePartRequest
         {
             public required string Responsible { get; set; }
+        }
+
+        public class UpdatePartRequest
+        {
+            public required string Description { get; set; }
         }
 
         [HttpPost]
@@ -83,6 +85,22 @@ namespace TrackPro.API.Controllers
             {
                 return BadRequest(ex.Message);
             }
+        }
+
+        [HttpPut("{code}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> Put(string code, [FromBody] UpdatePartRequest request)
+        {
+            var command = new UpdatePartCommand
+            {
+                Code = code,
+                Description = request.Description
+            };
+
+            await _mediator.Send(command);
+
+            return NoContent();
         }
     }
 }

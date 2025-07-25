@@ -33,7 +33,16 @@ namespace TrackPro.Domain.Entities
         public void FinishProcess()
         {
             Status = "Finalizada";
-            CurrentStationId = 0; 
+            CurrentStationId = 0;
+        }
+        
+        public void UpdateDescription(string newDescription)
+        {
+            if (string.IsNullOrWhiteSpace(newDescription))
+            {
+                throw new ArgumentException("A descrição não pode ser vazia.");
+            }
+            Description = newDescription;
         }
     }
 }
