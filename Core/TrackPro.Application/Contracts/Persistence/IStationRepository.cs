@@ -4,6 +4,6 @@ namespace TrackPro.Application.Contracts.Persistence
 {
     public interface IStationRepository : IGenericRepository<Station>
     {
-        Task<Station> GetByOrderAsync(int order);
+        Task<Station?> GetByOrderAsync(int order);
     }
 }

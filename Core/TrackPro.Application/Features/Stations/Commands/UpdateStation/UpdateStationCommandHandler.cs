@@ -1,5 +1,7 @@
 using MediatR;
 using TrackPro.Application.Contracts.Persistence;
+using TrackPro.Application.Exceptions;
+using System.Net;
 
 namespace TrackPro.Application.Features.Stations.Commands.UpdateStation
 {
@@ -18,7 +20,7 @@ namespace TrackPro.Application.Features.Stations.Commands.UpdateStation
 
             if (stationToUpdate == null)
             {
-                throw new ApiException($"Station with Id {request.Id} not found.");
+                throw new ApiException(HttpStatusCode.NotFound, $"Station with Id {request.Id} not found.");
             }
 
             stationToUpdate.Name = request.Name;
