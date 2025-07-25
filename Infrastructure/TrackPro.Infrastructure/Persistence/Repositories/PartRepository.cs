@@ -2,6 +2,7 @@ using Microsoft.EntityFrameworkCore;
 using TrackPro.Application.Contracts.Persistence;
 using TrackPro.Domain.Entities;
 using TrackPro.Infrastructure.Persistence.DbContexts;
+using System.Linq.Expressions;
 
 namespace TrackPro.Infrastructure.Persistence.Repositories
 {
@@ -43,6 +44,11 @@ namespace TrackPro.Infrastructure.Persistence.Repositories
         {
             _context.Parts.Remove(entity);
             await _context.SaveChangesAsync();
+        }
+
+        public async Task<bool> AnyAsync(Expression<Func<Part, bool>> predicate)
+        {
+            return await _context.Parts.AnyAsync(predicate);
         }
 
         public Task<Part> GetByIdAsync(int id) => throw new NotImplementedException("A entidade Part é identificada por um Code (string), não por um Id (int). Use GetByCodeAsync.");

@@ -18,7 +18,7 @@ namespace TrackPro.Application.Features.Stations.Commands.UpdateStation
 
             if (stationToUpdate == null)
             {
-                throw new Exception($"Station with Id {request.Id} not found.");
+                throw new ApiException($"Station with Id {request.Id} not found.");
             }
 
             stationToUpdate.Name = request.Name;

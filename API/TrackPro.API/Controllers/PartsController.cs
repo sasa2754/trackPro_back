@@ -6,6 +6,7 @@ using TrackPro.Application.Features.Parts.Queries.GetPartByCode;
 using TrackPro.Application.Features.Parts.Commands.MovePart;
 using TrackPro.Application.Features.Parts.Commands.UpdatePart;
 using TrackPro.Application.Features.Parts.Commands.DeletePart;
+using TrackPro.Application.Features.Movements.Queries.GetMovementHistoryByPartCode;
 
 namespace TrackPro.API.Controllers
 {
@@ -113,8 +114,16 @@ namespace TrackPro.API.Controllers
 
             await _mediator.Send(command);
 
-            // Retorna 204 No Content, o padrão para um delete bem-sucedido.
             return NoContent();
+        }
+
+        [HttpGet("{code}/history")]
+        [ProducesResponseType(typeof(List<MovementHistoryDto>), StatusCodes.Status200OK)]
+        public async Task<ActionResult<List<MovementHistoryDto>>> GetHistory(string code)
+        {
+            var query = new GetMovementHistoryByPartCodeQuery() { PartCode = code };
+            var history = await _mediator.Send(query);
+            return Ok(history);
         }
     }
 }

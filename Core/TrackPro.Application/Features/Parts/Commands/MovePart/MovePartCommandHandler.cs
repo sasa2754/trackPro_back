@@ -1,5 +1,7 @@
+using System.Net;
 using MediatR;
 using TrackPro.Application.Contracts.Persistence;
+using TrackPro.Application.Exceptions;
 using TrackPro.Domain.Entities;
 
 namespace TrackPro.Application.Features.Parts.Commands.MovePart
@@ -22,18 +24,18 @@ namespace TrackPro.Application.Features.Parts.Commands.MovePart
             var partToMove = await _partRepository.GetByCodeAsync(request.PartCode);
             if (partToMove == null)
             {
-                throw new Exception($"Part with code {request.PartCode} not found.");
+                throw new ApiException(HttpStatusCode.NotFound, $"Part with code {request.PartCode} not found.");
             }
 
             if (partToMove.Status == "Finalizada")
             {
-                throw new Exception("Cannot move a part that is already finished.");
+                throw new ApiException(HttpStatusCode.BadRequest, "Cannot move a part that is already finished.");
             }
 
             var currentStation = await _stationRepository.GetByIdAsync(partToMove.CurrentStationId);
             if (currentStation == null)
             {
-                throw new Exception($"Inconsistent data: Current station with Id {partToMove.CurrentStationId} not found for part {partToMove.Code}.");
+                throw new ApiException(HttpStatusCode.NotFound, $"Inconsistent data: Current station with Id {partToMove.CurrentStationId} not found for part {partToMove.Code}.");
             }
 
             var nextStationOrder = currentStation.Order + 1;

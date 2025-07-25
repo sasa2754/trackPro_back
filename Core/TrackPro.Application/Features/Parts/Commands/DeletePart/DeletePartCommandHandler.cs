@@ -1,5 +1,7 @@
+using System.Net;
 using MediatR;
 using TrackPro.Application.Contracts.Persistence;
+using TrackPro.Application.Exceptions;
 
 namespace TrackPro.Application.Features.Parts.Commands.DeletePart
 {
@@ -18,7 +20,7 @@ namespace TrackPro.Application.Features.Parts.Commands.DeletePart
 
             if (partToDelete == null)
             {
-                throw new Exception($"Part with code {request.Code} not found.");
+                throw new ApiException(HttpStatusCode.NotFound, $"Part with code {request.Code} not found.");
             }
 
             await _partRepository.DeleteAsync(partToDelete);

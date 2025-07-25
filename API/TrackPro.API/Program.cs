@@ -6,6 +6,7 @@ using TrackPro.Infrastructure.Persistence.Repositories;
 using FluentValidation;
 using MediatR;
 using TrackPro.Application.Behaviours;
+using TrackPro.API.Middleware;
 
 var builder = WebApplication.CreateBuilder(args);
 
@@ -42,7 +43,10 @@ void ConfigureServices(IServiceCollection services)
 
 void ConfigurePipeline(WebApplication webApp)
 {
+    webApp.UseMiddleware<ExceptionHandlingMiddleware>();
+    
     SeedDatabase(webApp);
+
 
     if (webApp.Environment.IsDevelopment())
     {

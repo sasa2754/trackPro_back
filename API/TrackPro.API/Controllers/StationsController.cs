@@ -65,10 +65,11 @@ namespace TrackPro.API.Controllers
 
             return NoContent();
         }
-        
+
         [HttpDelete("{id}")]
         [ProducesResponseType(StatusCodes.Status204NoContent)]
         [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
         public async Task<ActionResult> Delete(int id)
         {
             var command = new DeleteStationCommand() { Id = id };
