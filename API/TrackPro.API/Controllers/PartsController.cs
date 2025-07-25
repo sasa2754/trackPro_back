@@ -5,6 +5,7 @@ using TrackPro.Application.Features.Parts.Queries.GetPartList;
 using TrackPro.Application.Features.Parts.Queries.GetPartByCode;
 using TrackPro.Application.Features.Parts.Commands.MovePart;
 using TrackPro.Application.Features.Parts.Commands.UpdatePart;
+using TrackPro.Application.Features.Parts.Commands.DeletePart;
 
 namespace TrackPro.API.Controllers
 {
@@ -100,6 +101,19 @@ namespace TrackPro.API.Controllers
 
             await _mediator.Send(command);
 
+            return NoContent();
+        }
+
+        [HttpDelete("{code}")]
+        [ProducesResponseType(StatusCodes.Status204NoContent)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        public async Task<ActionResult> Delete(string code)
+        {
+            var command = new DeletePartCommand() { Code = code };
+
+            await _mediator.Send(command);
+
+            // Retorna 204 No Content, o padrão para um delete bem-sucedido.
             return NoContent();
         }
     }
