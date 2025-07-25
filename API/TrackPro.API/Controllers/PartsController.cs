@@ -3,9 +3,14 @@ using Microsoft.AspNetCore.Mvc;
 using TrackPro.Application.Features.Parts.Commands.CreatePart;
 using TrackPro.Application.Features.Parts.Queries.GetPartList;
 using TrackPro.Application.Features.Parts.Queries.GetPartByCode;
+using TrackPro.Application.Features.Parts.Commands.MovePart;
 
 namespace TrackPro.API.Controllers
 {
+
+
+
+
     [ApiController]
     [Route("api/[controller]")]
     public class PartsController : ControllerBase
@@ -15,6 +20,11 @@ namespace TrackPro.API.Controllers
         public PartsController(IMediator mediator)
         {
             _mediator = mediator;
+        }
+
+        public class MovePartRequest
+        {
+            public required string Responsible { get; set; }
         }
 
         [HttpPost]
@@ -50,6 +60,29 @@ namespace TrackPro.API.Controllers
             }
 
             return Ok(part);
+        }
+
+        [HttpPost("{code}/move")]
+        [ProducesResponseType(StatusCodes.Status200OK)]
+        [ProducesResponseType(StatusCodes.Status404NotFound)]
+        [ProducesResponseType(StatusCodes.Status400BadRequest)]
+        public async Task<ActionResult> Move(string code, [FromBody] MovePartRequest request)
+        {
+            var command = new MovePartCommand()
+            {
+                PartCode = code,
+                Responsible = request.Responsible
+            };
+
+            try
+            {
+                await _mediator.Send(command);
+                return Ok(new { message = $"Part {code} moved successfully." });
+            }
+            catch (Exception ex)
+            {
+                return BadRequest(ex.Message);
+            }
         }
     }
 }
