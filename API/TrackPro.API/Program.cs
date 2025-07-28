@@ -33,17 +33,29 @@ void ConfigureServices(IServiceCollection services)
     services.AddScoped<IMovementRepository, MovementRepository>();
 
     services.AddMediatR(cfg => cfg.RegisterServicesFromAssembly(typeof(IStationRepository).Assembly));
-    services.AddValidatorsFromAssembly(typeof(IStationRepository).Assembly); 
+    services.AddValidatorsFromAssembly(typeof(IStationRepository).Assembly);
     services.AddTransient(typeof(IPipelineBehavior<,>), typeof(ValidationBehaviour<,>));
 
     services.AddControllers();
     services.AddEndpointsApiExplorer();
     services.AddSwaggerGen();
+
+    services.AddCors(options =>
+    {
+        options.AddPolicy("AllowEverything", builder =>
+        {
+            builder.AllowAnyOrigin()
+                .AllowAnyMethod()
+                .AllowAnyHeader();
+        });
+    });
 }
 
 void ConfigurePipeline(WebApplication webApp)
 {
     webApp.UseMiddleware<ExceptionHandlingMiddleware>();
+
+    webApp.UseCors("AllowEverything");
     
     SeedDatabase(webApp);
 
