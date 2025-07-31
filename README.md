@@ -58,9 +58,6 @@ cd trackpro_back
 # Restaure os pacotes
 dotnet restore
 
-# Aplique as migrations para criar o banco SQLite
-dotnet ef database update -p Infrastructure/TrackPro.Infrastructure -s API/TrackPro.API
-
 # Inicie o servidor
 dotnet run --project API/TrackPro.API
 ```
